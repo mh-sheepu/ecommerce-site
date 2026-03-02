@@ -146,8 +146,8 @@ function AdminOrders() {
       </div>
 
       <div className="orders-content">
-        {/* Orders Table */}
-        <div className="orders-table-container">
+        {/* Orders Table - Desktop */}
+        <div className="orders-table-container desktop-only">
           {filteredOrders.length === 0 ? (
             <div className="no-orders">
               <span className="empty-icon">📭</span>
@@ -227,17 +227,99 @@ function AdminOrders() {
           )}
         </div>
 
+        {/* Orders Cards - Mobile */}
+        <div className="orders-cards mobile-only">
+          {filteredOrders.length === 0 ? (
+            <div className="no-orders">
+              <span className="empty-icon">📭</span>
+              <h3>No Orders Found</h3>
+              <p>{filterStatus === 'all' ? 'No orders have been placed yet.' : `No ${filterStatus} orders.`}</p>
+            </div>
+          ) : (
+            filteredOrders.map(order => (
+              <div 
+                key={order.id} 
+                className={`order-card ${selectedOrder?.id === order.id ? 'selected' : ''}`}
+                onClick={() => setSelectedOrder(order)}
+              >
+                <div className="order-card-header">
+                  <span className="order-card-id">{order.id}</span>
+                  <span 
+                    className="order-card-status"
+                    style={{ backgroundColor: getStatusColor(order.status) }}
+                  >
+                    {order.status}
+                  </span>
+                </div>
+                <div className="order-card-body">
+                  <div className="order-card-customer">
+                    <span className="customer-name">{order.customer.name}</span>
+                    <span className="customer-email">{order.customer.email}</span>
+                  </div>
+                  <div className="order-card-details">
+                    <div className="detail-item">
+                      <span className="label">Items</span>
+                      <span className="value">{order.items.length}</span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="label">Total</span>
+                      <span className="value total">{formatPrice(order.total)}</span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="label">Payment</span>
+                      <span className={`value payment-badge ${order.payment.method}`}>
+                        {order.payment.method === 'cod' ? '💵 COD' : '💳 Online'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="order-card-footer">
+                  <span className="order-date">{formatDate(order.createdAt)}</span>
+                  <div className="order-card-actions">
+                    <select
+                      value={order.status}
+                      onChange={(e) => {
+                        e.stopPropagation()
+                        handleStatusChange(order.id, e.target.value)
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      className="mobile-status-select"
+                    >
+                      {statusOptions.map(option => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                    <button 
+                      className="delete-btn"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleDeleteOrder(order.id)
+                      }}
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
         {/* Order Details Panel */}
         {selectedOrder && (
-          <div className="order-details-panel">
-            <div className="panel-header">
-              <h2>Order Details</h2>
-              <button className="close-btn" onClick={() => setSelectedOrder(null)}>×</button>
-            </div>
-            <div className="panel-content">
-              <div className="detail-section">
-                <h3>Order Info</h3>
-                <div className="detail-row">
+          <>
+            <div className="panel-overlay" onClick={() => setSelectedOrder(null)} />
+            <div className="order-details-panel">
+              <div className="panel-header">
+                <h2>Order Details</h2>
+                <button className="close-btn" onClick={() => setSelectedOrder(null)}>×</button>
+              </div>
+              <div className="panel-content">
+                <div className="detail-section">
+                  <h3>Order Info</h3>
+                  <div className="detail-row">
                   <span className="label">Order ID:</span>
                   <span className="value">{selectedOrder.id}</span>
                 </div>
@@ -352,6 +434,7 @@ function AdminOrders() {
               </div>
             </div>
           </div>
+          </>
         )}
       </div>
     </div>
