@@ -73,7 +73,7 @@ function Checkout() {
         status: paymentMethod === 'cod' ? 'pending' : 'awaiting',
       },
       subtotal,
-      shipping,
+      shippingCost: shipping,
       tax: taxAmount,
       discount: promoDiscount,
       promoCode: promoApplied?.valid ? promoCode : null,
